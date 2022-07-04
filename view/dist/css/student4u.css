@@ -1,0 +1,55 @@
+.action-form {
+    display: flex;
+    text-align: center;
+}
+
+.action-form-child {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.complaint-data {
+    max-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.remove-file {
+    cursor: pointer;
+    color: red;
+    text-decoration: none;
+}
+
+.input-hide {
+    visibility: hidden;
+    display: none;
+}
+ 
+.anon-checkbox {
+    margin-bottom: 10px;
+}
+
+.table-complaint-parent {
+    height: 500px;
+}
+
+.date-show-flex {
+    display: flex;
+}
+
+.date-show-child {
+    flex:1;
+}
+
+.response-btn {
+    float: right;
+}
+
+.add-complaint {
+    margin: 10px;
+}
+
+.add-paperwork {
+    margin: 10px;
+}
