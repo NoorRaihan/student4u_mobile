@@ -18,19 +18,10 @@
 
             $sql = "INSERT INTO assign VALUES($this->user_id, $this->role_id, '$this->position')";
 
-            session_start();
             if($conn->query($sql) === TRUE) {
-                $_SESSION['message'] = "Role assigned successfully";
-                $_SESSION['modal'] = 1;
-                echo "<script>window.location.href = history.back();</script>";
-                echo "Assign Successful!";
+                return "success";
             } else {
-                $user = new User();
-                $user->delete($user_id);
-                $_SESSION['message'] = "Role was not successfully assigned";
-                $_SESSION['modal'] = 1;
-                echo "<script>window.location.href = history.back();</script>";
-                echo "Error: " . $sql;
+                return 'failed';
             }
 
             $conn->close();

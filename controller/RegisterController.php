@@ -29,19 +29,32 @@
             'time_cost' => 4
         ];
 
-        $user->user_password =  password_hash($user->user_password, PASSWORD_ARGON2I,$options);
-        $user->create();
+        if(!empty($user->matrix_no) && !empty($user->user_name) && !empty($user->user_phone) && !empty($user->user_email) && !empty($user->user_password)) {
 
-        $curr_user = User::get_user(NULL,$user->matrix_no);
+            $user->user_password =  password_hash($user->user_password, PASSWORD_ARGON2I,$options);
+            $user->create();
 
-        $assign = new Assign();
-        $assign->user_id = $curr_user['user_id'];
-        $assign->role_id = 1;
-        $assign->create();
+            $curr_user = User::get_user(NULL,$user->matrix_no);
+            if($curr_user != NULL) {
+                $assign = new Assign();
+                $assign->user_id = $curr_user['user_id'];
+                $assign->role_id = 1;
+                $assign->create();
+                $message = "success";
+            }else{
+                $message = $user->matrix_no;
+            }
+           
+        }else{
+            $message = "insufficient data";
+        }
     }else{
-        session_start();
-        $_SESSION['err'] = 1;
-        echo "<script>window.location.href = history.back();</script>";
-        echo "Matrix no already exists!";
+        $message = "already exists";
     }
+
+    $json[] = array(
+        'status' => $message
+    );
+
+    echo json_encode($json);
 ?>

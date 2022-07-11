@@ -29,13 +29,11 @@
             if($conn->query($sql) == TRUE) {
                 $_SESSION['message'] = "Registration Successful!";
                 $_SESSION['modal'] = 1;
-                echo "<script>window.location.href = history.back();</script>";
-                echo "User created successfully!";
+                return " user success";
             }else {
                 $_SESSION['message'] = "Something went wrong";
                 $_SESSION['modal'] = 2;
-                echo "<script>window.location.href = history.back();</script>";
-                echo  "Error: " . $sql;
+                return "user failed";
             }
 
             

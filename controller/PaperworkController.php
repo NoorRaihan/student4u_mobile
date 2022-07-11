@@ -4,7 +4,6 @@
     include_once '../model/database.php';
     include '../model/Paperwork.php';
     include '../model/Club.php';
-    include_once '../controller/RoleValidation.php';
 
 
     function create_submission($uid)
@@ -136,12 +135,29 @@
 
     function getAllPaperworks()
     { 
-        return Paperwork::getAllPaperworks();
+        $paper = Paperwork::getAllPaperworks();
+
+        if($paper->num_rows > 0) {
+            while($r = $paper->fetch_assoc()) {
+                $data[] = $r;
+            }
+            return $data;
+        }else{
+            return null;
+        }
     }
 
-    function getAllPaperworksByUID()
+    function getAllPaperworksByUID($uid)
     { 
-        return Paperwork::getAllPaperworksByUID($_SESSION['user_id']);
+        $paper = Paperwork::getAllPaperworksByUID($uid);
+        if($paper->num_rows > 0) {
+            while($r = $paper->fetch_assoc()) {
+                $data[] = $r;
+            }
+            return $data;
+        }else{
+            return null;
+        }
     }
 
     function getAllPaperworksByMode($status) 
@@ -264,6 +280,17 @@
             $paperwork->returned_file = NULL;
             $paperwork->responseByID();
         }
+    }
+
+    if(isset($_GET['paperwork']) && isset($_GET['uid'])) {
+        $uid = intval($_GET['uid']);
+        $json[] = getAllPaperworksByUID($uid);
+        echo json_encode($json);
+    }
+
+    if(isset($_GET['paperwork']) && !isset($_GET['uid'])) {
+        $json[] = getAllPaperworks();
+        echo json_encode($json);
     }
 
     if(isset($_POST['submit'])) {

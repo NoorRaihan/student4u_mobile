@@ -3,7 +3,7 @@
     session_status() === PHP_SESSION_ACTIVE ?: session_start();
     include_once '../model/database.php';
     include_once '../model/Complaint.php';
-    include_once '../controller/RoleValidation.php';
+    //include_once '../controller/RoleValidation.php';
     
     function create_complaint($uid) 
     {
@@ -133,7 +133,16 @@
     //get all the complaint
     function view_all_complaint()
     {
-        return Complaint::getAllComplaint();
+        $comp = Complaint::getAllComplaint();
+
+        if($comp->fetch_assoc() != NULL) {
+            while($r = $comp->fetch_assoc()) {
+                $data[] = $r;
+            }
+            return $data;
+        }else{
+            return null;
+        }
     }
 
     function view_mode_complaint($status)
@@ -156,10 +165,18 @@
         return Complaint::getAllComplaintHistoryByUID($_SESSION['user_id']);
     }
 
-    function view_all_complaint_uid()
+    function view_all_complaint_uid($uid)
     {
-        $uid = intval($_SESSION['user_id']);
-        return Complaint::getAllComplaintByUID($uid);
+        $comp = Complaint::getAllComplaintByUID($uid);
+        //var_dump($comp->fetch_assoc());
+        if($comp->num_rows > 0) {
+            while($r = $comp->fetch_assoc()) {
+                $data[] = $r;
+            }
+            return $data;
+        }else{
+            return null;
+        }
     }
 
     function search_complaint_matric($matric)
@@ -182,8 +199,13 @@
 
     function get_complaint($id)
     {
-        $id = intval($id);
-        return Complaint::getComplaintByID($id);
+        $comp = Complaint::getComplaintByID($id);
+        if($comp != NULL) {
+            $data[] = $comp;
+            return $data;
+        }else{
+            return null;
+        }
     }
 
     function deleteComplaintByUID($id)
@@ -226,6 +248,27 @@
         $complaint->comp_response = $conn->real_escape_string($_POST['response']);
 
         $complaint->responseByID();
+    }
+
+    if(isset($_GET['complaint']) && isset($_GET['uid'])) {
+        
+        $uid = intval($_GET['uid']);
+        $json[] = view_all_complaint_uid($uid);
+        echo json_encode($json);
+
+    }else if(isset($_GET['complaint']) && !isset($_GET['uid']) && !isset($_GET['id']) && !isset($_GET['uid'])) {
+        $json[] = view_all_complaint();
+        echo json_encode($json);
+
+    }else if(isset($_GET['complaint']) && isset($_GET['id'])) {
+        $id = intval($_GET['id']);
+        $json[] = get_complaint($id);
+        echo json_encode($json);
+    }else if(isset($_GET['complaint']) && isset($_GET['id']) && isset($_GET['uid'])) {
+        $id = intval($_GET['id']);
+        $uid = intval($_GET['uid']);
+        $json[] = get_complaint_UID($id,$uid);
+        echo json_encode($json);
     }
 
     if(isset($_POST['submit'])) {
