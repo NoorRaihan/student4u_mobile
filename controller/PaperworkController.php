@@ -284,12 +284,12 @@
 
     if(isset($_GET['paperwork']) && isset($_GET['uid'])) {
         $uid = intval($_GET['uid']);
-        $json[] = getAllPaperworksByUID($uid);
+        $json = getAllPaperworksByUID($uid);
         echo json_encode($json);
     }
 
     if(isset($_GET['paperwork']) && !isset($_GET['uid'])) {
-        $json[] = getAllPaperworks();
+        $json = getAllPaperworks();
         echo json_encode($json);
     }
 

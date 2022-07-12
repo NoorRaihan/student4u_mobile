@@ -215,21 +215,21 @@
     if(isset($_GET['complaint']) && isset($_GET['uid'])) {
         
         $uid = intval($_GET['uid']);
-        $json[] = view_all_complaint_uid($uid);
+        $json = view_all_complaint_uid($uid);
         echo json_encode($json);
 
     }else if(isset($_GET['complaint']) && !isset($_GET['uid']) && !isset($_GET['id']) && !isset($_GET['uid'])) {
-        $json[] = view_all_complaint();
+        $json = view_all_complaint();
         echo json_encode($json);
 
     }else if(isset($_GET['complaint']) && isset($_GET['id'])) {
         $id = intval($_GET['id']);
-        $json[] = get_complaint($id);
+        $json = get_complaint($id);
         echo json_encode($json);
     }else if(isset($_GET['complaint']) && isset($_GET['id']) && isset($_GET['uid'])) {
         $id = intval($_GET['id']);
         $uid = intval($_GET['uid']);
-        $json[] = get_complaint_UID($id,$uid);
+        $json = get_complaint_UID($id,$uid);
         echo json_encode($json);
     }
 
