@@ -4,7 +4,7 @@
     include_once '../model/database.php';
     include_once '../model/Complaint.php';
     //include_once '../controller/RoleValidation.php';
-    
+
     function create_complaint($uid) 
     {
         //get a DB connection
@@ -14,55 +14,26 @@
         $uid = intval($uid);
 
         $complaint = new Complaint();
-        $complaint->comp_desc = $conn->real_escape_string($_POST['description']);
+        $complaint->comp_desc = $conn->real_escape_string($_GET['description']);
         $complaint->created_at = strftime('%Y-%m-%d %H:%M:%S');
         $complaint->user_id = intval($uid);
-        $complaint->hide = intval(!empty($_POST['hide']) ? $_POST['hide'] : NULL);
+        $complaint->hide = intval(!empty($_GET['hide']) ? $_GET['hide'] : NULL);
+        $data = file_get_contents('php://input');
+        
+        if($data != "" || $data != NULL) {
 
-        if($_FILES['file']['tmp_name'] !== '') {
-
-            $file = $_FILES['file'];
-            var_dump($file);
-            var_dump($_POST['description']);
-            var_dump(intval($_POST['hide']));
+            $newFileName = md5(time()) . "." . 'jpg';
+            if(!(file_put_contents('../view/uploads/complaint/'.$newFileName, $data)) === FALSE) {
+                $complaint->attached_file = '../view/uploads/complaint/test.jpg';
+                $status = $complaint->create();
     
-            //file properties;
-            $file_ext = array("txt","jpg","zip","rar","gif","png","jpeg");
-            $filename = $file['name'];
-            $file_type = $file['type'];
-            $file_size = $file['size'];
-            $file_error = $file['error'];
-            $file_tmp = $file['tmp_name'];
-    
-            //check for file format
-            $fileExplode = explode(".", $filename);
-            $file_format = strtolower(end($fileExplode));
-    
-            //sanitize the filename
-            $newFileName = md5(time().$filename) . "." . $file_format;
-    
-            //check if the file format is allow
-            if(in_array($file_format, $file_ext)) {
-    
-                $newDest = "../view/uploads/complaint/" . $newFileName;
-    
-                if(move_uploaded_file($file_tmp, $newDest)) {
-    
-                    $complaint->attached_file = $newDest;
-                    echo "upload successful!";
-                    $complaint->create();
-
-                } else {
-                    echo "upload failed!";
-                }
-
-            }else{
-                echo "filetype not allowed!";
+                return $status;
             }
-
-        } else {
+        }else{
             $complaint->attached_file = NULL;
-            $complaint->create();
+            $status = $complaint->create();
+
+            return $status;
         }
     }
 
@@ -145,15 +116,6 @@
         }
     }
 
-    function view_mode_complaint($status)
-    {
-        return Complaint::getAllComplaintByMode($status);
-    }
-
-    function view_mode_complaint_uid($status)
-    {
-        return Complaint::getAllComplaintByModeUID($status, $_SESSION['user_id']);
-    }
 
     function view_history_complaint()
     {
@@ -208,10 +170,10 @@
         }
     }
 
-    function deleteComplaintByUID($id)
+    function deleteComplaintByUID($id, $uid)
     {
         $id = intval($id);
-        $uid = intval($_SESSION['user_id']);
+        $uid = intval($uid);
 
         //get the complaint data
         $complaint = Complaint::getComplaintByUID($id,$uid);
@@ -271,8 +233,14 @@
         echo json_encode($json);
     }
 
-    if(isset($_POST['submit'])) {
-        create_complaint($_SESSION['user_id']);
+    if(isset($_GET['submit'])) {
+        $uid = $_GET['uid'];
+        $status = create_complaint($uid);
+        $json[] = array(
+            'status' => $status
+        );
+
+        echo json_encode($json);
     }
 
     if(isset($_POST['update'])) {
@@ -299,61 +267,4 @@
         $id = $_POST['id'];
         responseComplaint($id, $status);
     }
-
-    if(isset($_GET['mode'])){
-        $mode = intval($_GET['mode']);
-
-        if($role == 1) {
-            switch ($mode) {
-                case 1:
-                    $complaints = view_all_complaint_uid();
-                    $title = "All Complaints";
-                    break;
-                case 2:
-                    $complaints = view_mode_complaint_uid('IN PROGRESS');
-                    $title = "Pending Complaints";
-                    break;
-                case 3:
-                    $complaints = view_history_complaint_uid();
-                    $title = "Complaint History";
-                    break;
-                case 4:
-                    $complaints = view_mode_complaint_uid('APPROVED');
-                    $title = "Approved Complaints";
-                    break;
-                case 5:
-                    $complaints = view_mode_complaint_uid('REJECTED');
-                    $title = "Rejected Complaints";
-                    break;
-                default:
-                    header('Location: 403.php');
-            }
-        }else if($role == 2) {
-            switch ($mode) {
-                case 1:
-                    $complaints = view_all_complaint();
-                    $title = "All Complaints";
-                    break;
-                case 2:
-                    $complaints = view_mode_complaint('IN PROGRESS');
-                    $title = "Pending Complaints";
-                    break;
-                case 3:
-                    $complaints = view_history_complaint();
-                    $title = "Complaint History";
-                    break;
-                case 4:
-                    $complaints = view_mode_complaint('APPROVED');
-                    $title = "Approved Complaints";
-                    break;
-                case 5:
-                    $complaints = view_mode_complaint('REJECTED');
-                    $title = "Rejected Complaints";
-                    break;
-                default:
-                    header('Location: 403.php');
-            }
-        }
-    }
-
 ?>

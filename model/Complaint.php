@@ -29,16 +29,10 @@
             $this->user_id, 
             $this->hide)";
             //var_dump($sql);
-            session_start();
             if($conn->query($sql) == TRUE) {
-                $_SESSION['message'] = "Complaint submitted successfully!";
-                $_SESSION['modal'] = 1;
-                echo header("Location: ../view/complaint_view.php?mode=1");
+                return "success";
             }else {
-                $_SESSION['message'] = "Submission was not successfull";
-                $_SESSION['modal'] = 1;
-                echo header("Location: ../view/complaint_view.php?mode=1");
-                echo  "Error: " . $sql;
+                echo  "failed";
             }
         }
 
