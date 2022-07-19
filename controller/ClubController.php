@@ -20,7 +20,16 @@
     
     function getAllClub()
     {
-        return Club::getAllClubs();
+        $club = Club::getAllClubs();
+
+        if($club->num_rows > 0) {
+            while($r = $club->fetch_assoc()) {
+                $data[] = $r;
+            }
+            return $data;
+        }else{
+            return null;
+        }
     }
 
     function getClubByID($id)
@@ -60,5 +69,11 @@
 
     if(isset($_POST['submit'])) {
         createClub($id);
+    }
+
+    if(isset($_GET['club'])) {
+        $json = getAllClub();
+        
+        echo json_encode($json);
     }
 ?>

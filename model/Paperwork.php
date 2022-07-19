@@ -35,16 +35,10 @@
             $this->club_id)";
 
             //var_dump($sql);
-            session_start();
             if($conn->query($sql) == TRUE) {
-                $_SESSION['message'] = "Paperwork submitted successfully!";
-                $_SESSION['modal'] = 1;
-                echo header("Location: ../view/paperwork_view.php?mode=1");
+               return "success";
             }else {
-                $_SESSION['message'] = "Submission was not successfull";
-                $_SESSION['modal'] = 1;
-                echo header("Location: ../view/paperwork_view.php?mode=1");
-                echo  "Error: " . $sql;
+                return "failed";
             }
         }
 
@@ -190,21 +184,14 @@
 
             $sql = "DELETE FROM submission WHERE sub_id = $id AND user_id = $uid";
 
-            session_start();
             if($conn->query($sql) == TRUE) {
                 if($conn->affected_rows != 0) {
-                    $_SESSION['message'] = "Submission deleted successfully!";
-                    $_SESSION['modal'] = 1;
-                    echo "<script>window.location.href = history.back();</script>";
-                    echo "Paperwork deleted successfully!";
+                    return "success";
                 }else{
-                    echo "<script>alert('Unauthorized data!'); window.location.href = history.back();</script>";
+                    return "unauthorized data";
                 }
             }else {
-                $_SESSION['message'] = "Delete was not successful";
-                $_SESSION['modal'] = 1;
-                echo "<script>window.location.href = history.back();</script>";
-                echo  "Error: " . $sql;
+               return "failed";
             }
         }
 
@@ -281,21 +268,14 @@
             WHERE sub_id = $this->id AND user_id = $this->user_id";
 
             //var_dump($sql);
-            session_start();
             if($conn->query($sql) == TRUE) {
                 if($conn->affected_rows != 0){
-                    $_SESSION['message'] = "Submission updated successfully!";
-                    $_SESSION['modal'] = 1;
-                    echo "<script>window.location.href = history.back();</script>";
-                    echo "paperwork updated successfully!";
+                   return "success";
                 }else{
-                    echo "<script>alert('Unauthorized data!'); window.location.href = history.back();</script>";
+                    return "unauthorized data";
                 }
             }else {
-                $_SESSION['message'] = "Update was not successful";
-                $_SESSION['modal'] = 1;
-                echo "<script>window.location.href = history.back();</script>";
-                echo  "Error: " . $sql;
+               return "failed";
             }
         }
 
@@ -313,21 +293,14 @@
             WHERE sub_id = $this->id";
 
             // var_dump($sql);
-            session_start();
             if($conn->query($sql) == TRUE) {
                 if($conn->affected_rows != 0){
-                    $_SESSION['message'] = "Response submitted successfully!";
-                    $_SESSION['modal'] = 1;
-                    echo "<script>window.location.href = '../view/paperwork_view.php?mode=1';</script>";
-                    echo "paperwork updated successfully!";
+                    return "success";
                 }else{
-                    echo "<script>alert('Unauthorized data!'); window.location.href = history.back();</script>";
+                    return "unauthorized data";
                 }
             }else {
-                $_SESSION['message'] = "Respond was not successfull";
-                $_SESSION['modal'] = 1;
-                echo "<script>window.location.href = history.back();</script>";
-                echo  "Error: " . $sql;
+              return "failed";
             }
         }
 
@@ -349,7 +322,7 @@
             if($result == TRUE) {
                 return $result;
             }else{
-                echo "<script>alert('Extracting submissions went wrong!'); window.location.href = '../view/paperwork_view.php?mode=1'</script>";
+                return null;
             }
         }
 

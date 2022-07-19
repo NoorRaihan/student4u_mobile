@@ -9,7 +9,7 @@
         private $server = "localhost";
         private $username = "root";
         private $password = "";
-        private $dbname = "student4u";
+        private $dbname = "student4u_mobile";
 
         //Deployment
         // private $server = "sql6.freemysqlhosting.net";

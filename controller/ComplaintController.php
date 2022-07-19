@@ -24,7 +24,7 @@
 
             $newFileName = md5(time()) . "." . 'jpg';
             if(!(file_put_contents('../view/uploads/complaint/'.$newFileName, $data)) === FALSE) {
-                $complaint->attached_file = '../view/uploads/complaint/test.jpg';
+                $complaint->attached_file = '/view/uploads/complaint/'.$newFileName;
                 $status = $complaint->create();
     
                 return $status;
@@ -49,55 +49,26 @@
 
         $complaint = new Complaint();
         $complaint->comp_id = $id;
-        $complaint->comp_desc = $conn->real_escape_string($_POST['description']);
+        $complaint->comp_desc = $conn->real_escape_string($_GET['description']);
         $complaint->updated_at = strftime('%Y-%m-%d %H:%M:%S');
         $complaint->user_id = $uid;
-        $complaint->hide = intval(!empty($_POST['hide']) ? $_POST['hide'] : NULL);
+        $complaint->hide = intval(!empty($_GET['hide']) ? $_GET['hide'] : NULL);
+        $data = file_get_contents('php://input');
 
-        if($_FILES['file']['tmp_name'] !== '') {
+        if($data != "" || $data != NULL) {
 
-            $file = $_FILES['file'];
+            $newFileName = md5(time()) . "." . 'jpg';
+            if(!(file_put_contents('../view/uploads/complaint/'.$newFileName, $data)) === FALSE) {
+                $complaint->attached_file = '/view/uploads/complaint/'.$newFileName;
+                $status = $complaint->updateByUID();
     
-            //file properties;
-            $file_ext = array("txt","jpg","zip","rar","gif","png","jpeg","pdf");
-            $filename = $file['name'];
-            $file_type = $file['type'];
-            $file_size = $file['size'];
-            $file_error = $file['error'];
-            $file_tmp = $file['tmp_name'];
-    
-            //check for file format
-            $fileExplode = explode(".", $filename);
-            $file_format = strtolower(end($fileExplode));
-    
-            //sanitize the filename
-            $newFileName = md5(time().$filename) . "." . $file_format;
-    
-            //check if the file format is allow
-            if(in_array($file_format, $file_ext)) {
-    
-                $newDest = "../view/uploads/" . $newFileName;
-    
-                if(move_uploaded_file($file_tmp, $newDest)) {
-    
-                    $complaint->attached_file = $newDest;
-                    $complaint->updateByUID();
-
-                } else {
-                    echo "upload failed!";
-                }
-
-            }else{
-                echo "filetype not allowed!";
+                return $status;
             }
+        }else{
+            $complaint->attached_file = NULL;
+            $status = $complaint->updateByUID();
 
-        } else {
-            if($_POST['curr-file'] != NULL || $_POST != "") {
-                $complaint->attached_file = $_POST['curr-file'];
-            }else{
-                $complaint->attached_file = NULL;
-            }
-            $complaint->updateByUID();
+            return $status;
         }
     }
 
@@ -106,7 +77,7 @@
     {
         $comp = Complaint::getAllComplaint();
 
-        if($comp->fetch_assoc() != NULL) {
+        if($comp->num_rows > 0) {
             while($r = $comp->fetch_assoc()) {
                 $data[] = $r;
             }
@@ -149,7 +120,16 @@
         $conn = $instance->getDBConnection();
 
         $matric = $conn->real_escape_string($matric);
-        return Complaint::searchComplaintMatric($matric);
+        $comp = Complaint::searchComplaintMatric($matric);
+
+        if($comp->num_rows > 0) {
+            while($r = $comp->fetch_assoc()) {
+                $data[] = $r;
+            }
+            return $data;
+        }else{
+            return null;
+        }
     }
 
     function get_complaint_UID($id)
@@ -188,10 +168,12 @@
                     echo "Deleting complaint went wrong!";
                 }
             }else{
-                Complaint::deleteByUID($id,$uid);
+                $status = Complaint::deleteByUID($id,$uid);
+                return $status;
             }
         }else{
-            Complaint::deleteByUID($id,$uid);
+            $status = Complaint::deleteByUID($id,$uid);
+            return $status;
         }
     }
 
@@ -209,7 +191,7 @@
         $complaint->comp_status = $status;
         $complaint->comp_response = $conn->real_escape_string($_POST['response']);
 
-        $complaint->responseByID();
+        return $complaint->responseByID();
     }
 
     if(isset($_GET['complaint']) && isset($_GET['uid'])) {
@@ -243,28 +225,53 @@
         echo json_encode($json);
     }
 
-    if(isset($_POST['update'])) {
+    if(isset($_GET['update'])) {
 
-        $id = $_POST['id'];
-        $uid = $_SESSION['user_id'];
-        edit_complaintByID($id,$uid);
+        $id = $_GET['id'];
+        $uid = $_GET['uid'];
+        $status = edit_complaintByID($id,$uid); 
+        $json[] = array(
+            'status' => $status
+        );
+
+        echo json_encode($json);
     }
 
-    if(isset($_POST['delete'])) {
+    if(isset($_GET['delete'])) {
         
-        $id = $_POST['id'];
-        deleteComplaintByUID($id);
+        $id = $_GET['id'];
+        $uid = $_GET['uid'];
+        $status = deleteComplaintByUID($id, $uid);
+
+        $json[] = array(
+            'status' => $status
+        );
+
+        echo json_encode($json);
     }
 
-    if(isset($_POST['approve']) || isset($_POST['reject'])) {
+    if(isset($_GET['approve']) || isset($_GET['reject'])) {
 
-        if(isset($_POST['approve'])) {
+        if(isset($_GET['approve'])) {
             $status = "APPROVED";
         }else{
             $status = "REJECTED";
         }
 
         $id = $_POST['id'];
-        responseComplaint($id, $status);
+        $status = responseComplaint($id, $status);
+
+        $json = Array(
+            'status' => $status
+        );
+
+        echo json_encode($json);
+    }
+
+    if(isset($_GET['search'])) {
+
+        $matric = $_GET['search'];
+        $json = search_complaint_matric($matric);
+        echo json_encode($json);
     }
 ?>

@@ -32,7 +32,7 @@
             if($conn->query($sql) == TRUE) {
                 return "success";
             }else {
-                echo  "failed";
+                return "failed";
             }
         }
 
@@ -137,7 +137,7 @@
             if($results == TRUE) {
                 return $results; 
             }else{
-                echo "<script>alert('Extracting complaint went wrong!'); window.location.href = '../view/complaint_view.php?mode=1'</script>";
+                return null;
             }
         }
 
@@ -255,21 +255,14 @@
             updated_at = '$this->updated_at'
             WHERE comp_id = $this->comp_id AND user_id = $this->user_id";
 
-            session_start();
             if($conn->query($sql) == TRUE) {
                 if($conn->affected_rows != 0){
-                    $_SESSION['message'] = "Complaint updated successfully!";
-                    $_SESSION['modal'] = 1;
-                    echo "<script>window.location.href = history.back();</script>";
-                    echo "Complaint updated successfully!";
+                   return "success";
                 }else{
-                    echo "<script>alert('Unauthorized data!'); window.location.href = history.back();</script>";
+                   return "unauthorized data";
                 }
             }else {
-                $_SESSION['message'] = "Update not successfull [TECHNICAL ERROR]";
-                $_SESSION['modal'] = 1;
-                echo "<script>window.location.href = history.back();</script>";
-                echo  "Error: " . $sql;
+              return "failed";
             }
         }
 
@@ -283,20 +276,13 @@
 
             if($result = $conn->query($sql) == TRUE) {
 
-                session_start();
                 if($conn->affected_rows != 0) {
-                    $_SESSION['message'] = "Complaint deleted successfully!";
-                    $_SESSION['modal'] = 1;
-                    echo "<script>window.location.href = history.back();</script>";
-                    echo "Complaint deleted successfully!";
+                    return "success";
                 }else{
-                    echo "<script>alert('Unauthorized data!'); window.location.href = history.back();</script>";
+                    return "unauthorized data";
                 }
             }else {
-                $_SESSION['message'] = "Delete was not successful";
-                $_SESSION['modal'] = 1;
-                echo "<script>window.location.href = history.back();</script>";
-                echo  "Error: " . $sql;
+               return "failed";
             }
         }
 
@@ -312,21 +298,14 @@
             comp_status = '$this->comp_status'
             WHERE comp_id = $this->comp_id";
 
-            session_start();
             if($conn->query($sql) == TRUE) {
                 if($conn->affected_rows != 0){
-                    $_SESSION['message'] = "Response submitted successfully!";
-                    $_SESSION['modal'] = 1;
-                    echo "<script>window.location.href = '../view/complaint_view.php?mode=1';</script>";
-                    echo "Complaint responded successfully!";
+                    return "success";
                 }else{
-                    echo "<script>alert('Unauthorized data!'); window.location.href = history.back();</script>";
+                    return "data not found";
                 }
             }else {
-                $_SESSION['message'] = "Respond was not successfull";
-                $_SESSION['modal'] = 1;
-                echo "<script>window.location.href = history.back();</script>";
-                echo  "Error: " . $sql;
+                return "failed";
             }
         }
 
